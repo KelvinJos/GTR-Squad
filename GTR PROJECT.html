@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GTR E-SPORTS | PORTAL & GALERI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        gtr: {
+                            red: '#dc2626',
+                            dark: '#050505',
+                            surface: '#121212',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'glow-pulse': {
+                            '0%, 100%': { opacity: 0.5 },
+                            '50%': { opacity: 1 },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Background Effects */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background:
+                radial-gradient(circle at 15% 50%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(153, 27, 27, 0.06) 0%, transparent 50%);
+            filter: blur(40px);
+        }
+
+        .bg-noise {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* Glass Nav */
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Bento Cards */
+        .bento-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        .bento-card:hover::before { opacity: 1; }
+
+        /* Typography */
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, #a3a3a3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-red {
+            background: linear-gradient(to right, #ef4444, #991b1b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .modal-enter { animation: slideUpSheet 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            @keyframes slideUpSheet {
+                from { opacity: 0; transform: translateY(100%); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+        @media (min-width: 769px) {
+            .modal-enter { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            @keyframes scaleIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+        }
+
+        .role-img-container img { transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bento-card:hover .role-img-container img { transform: scale(1.1); }
+
+        /* Galeri Hover Zoom */
+        .gallery-card img { transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+        .gallery-card:hover img { transform: scale(1.08); }
+
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col items-center relative pb-32">
+
+    <!-- Backgrounds -->
+    <div class="bg-mesh"></div>
+    <div class="bg-noise"></div>
+
+    <!-- Floating Navbar -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-nav transition-all duration-300 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span class="font-display font-black tracking-widest text-lg text-white">GTR<span class="text-red-600">.</span></span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-xs font-bold tracking-widest uppercase text-gray-400">
+            <a href="#about" class="hover:text-white transition-colors">Tentang</a>
+            <a href="#roles" class="hover:text-white transition-colors">Roster</a>
+            <a href="#gallery" class="hover:text-white transition-colors">Galeri</a>
+        </div>
+        <a href="https://chat.whatsapp.com/LWdQbLtM0R9CcZRSt5iFJx?mode=gi_t" target="_blank" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors border border-white/10 flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4"></i> Gabung
+        </a>
+    </nav>
+
+    <main class="max-w-6xl w-full px-6 flex flex-col items-center gap-32 pt-32">
+
+        <!-- HERO SECTION -->
+        <header class="w-full flex flex-col items-center justify-center text-center min-h-[70vh] reveal active">
+            <div class="relative group cursor-pointer mb-10 animate-float">
+                <div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-900 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-1000 group-hover:duration-200"></div>
+                <img src="https://i.pinimg.com/736x/5f/1e/89/5f1e89d519d6eab6d8c1ff0ea51ee2a9.jpg" alt="GTR Logo" class="relative w-40 h-40 md:w-52 md:h-52 object-contain rounded-2xl border border-white/10 bg-black/50 shadow-2xl">
+            </div>
+
+            <h1 class="font-display text-6xl md:text-8xl lg:text-9xl font-black tracking-tight mb-6">
+                <span class="text-gradient">GTR</span> <span class="text-gradient-red">E-SPORTS</span>
+            </h1>
+
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-2.5 rounded-full backdrop-blur-md mb-10 shadow-lg">
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <p class="text-gray-300 tracking-[0.2em] text-xs font-bold uppercase">Squad Yang Akan Mendominasi Mobile Legends Bang-Bang</p>
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-5">
+                <a href="https://chat.whatsapp.com/LWdQbLtM0R9CcZRSt5iFJx?mode=gi_t" target="_blank" class="group relative px-8 py-4 bg-red-600 rounded-xl font-bold text-white overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                    <div class="relative flex items-center gap-3 justify-center">
+                        <i data-lucide="crosshair" class="w-5 h-5"></i>
+                        <span>Join Grup Rekrutmen</span>
+                    </div>
+                </a>
+
+                <!-- Diganti menjadi link anchor (smooth scroll) -->
+                <a href="#gallery" class="group px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 justify-center backdrop-blur-sm">
+                    <i data-lucide="image" class="w-5 h-5 group-hover:text-red-400 transition-colors"></i>
+                    <span>Lihat Momen Galeri</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="w-full grid md:grid-cols-5 gap-6 scroll-mt-24 reveal">
+            <div class="bento-card p-8 md:p-10 md:col-span-3 flex flex-col gap-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-red-500/10 rounded-xl text-red-500 border border-red-500/20">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-2xl font-display font-bold text-white">Aturan Squad</h3>
+                    </div>
+                    <span class="text-xs text-gray-500 font-mono">v.1.22</span>
+                </div>
+
+                <ul class="space-y-4 text-gray-400 font-light text-sm leading-relaxed">
+                    <li class="flex gap-3 items-start"><i data-lucide="check" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i> <span>Menormalisasikan rank di bawah kita.</span></li>
+                    <li class="flex gap-3 items-start"><i data-lucide="check" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i> <span>Jangan diam saja waktu ada yang mulai chat.</span></li>
+                    <li class="flex gap-3 items-start"><i data-lucide="check" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i> <span>Ramah terhadap semuanya.</span></li>
+                    <li class="flex gap-3 items-start"><i data-lucide="check" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i> <span>Tidak boleh kirim yang enggak-enggak (NSFW/Spam).</span></li>
+                    <li class="flex gap-3 items-start"><i data-lucide="x" class="w-4 h-4 text-red-500 mt-0.5 shrink-0"></i> <span class="text-white font-medium">Dilarang keras rasis, mengejek, dan merendahkan.</span></li>
+                </ul>
+            </div>
+
+            <div class="bento-card p-8 md:p-10 md:col-span-2 flex flex-col gap-6 relative overflow-hidden">
+                <i data-lucide="target" class="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 rotate-12"></i>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="p-3 bg-red-500/10 rounded-xl text-red-500 border border-red-500/20">
+                        <i data-lucide="flame" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold text-white">Visi & Misi</h3>
+                </div>
+                <p class="text-gray-400 font-light text-sm leading-relaxed relative z-10">
+                    Menjadi squad nomor 1 di dunia game. Tidak hanya mendominasi Land of Dawn, tapi juga mencetak anggota yang tangguh dalam pendidikan, beladiri, dan kehidupan sehari-hari.
+                </p>
+            </div>
+        </section>
+
+        <!-- ROLES SECTION -->
+        <section id="roles" class="w-full flex flex-col gap-8 scroll-mt-24 reveal">
+            <div class="flex items-center gap-4">
+                <h2 class="font-display text-3xl font-bold text-white uppercase tracking-wider">Divisi Role</h2>
+                <div class="h-[1px] flex-1 bg-gradient-to-r from-red-600/50 to-transparent"></div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+                <!-- ROLES CARDS -->
+                <button onclick="openModal('jungler')" class="bento-card group flex flex-col items-center p-6 text-center text-left">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-red-500/50 role-img-container shadow-lg">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuEPtJw5YcMLSrp50RrghF_yXKrUo0ToN0VxzSMbaL1QEmzqeBv7ABhaDW&s=10" alt="Jungler" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-white mb-1">JUNGLER</h3>
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition-colors">Lihat Roster</span>
+                </button>
+
+                <button onclick="openModal('roamer')" class="bento-card group flex flex-col items-center p-6 text-center">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-red-500/50 role-img-container shadow-lg">
+                        <img src="https://img.freepik.com/premium-vector/role-mobile-legends-bang-bang_890255-47.jpg?w=360" alt="Roamer" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-white mb-1">ROAMER</h3>
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition-colors">Lihat Roster</span>
+                </button>
+
+                <button onclick="openModal('mid')" class="bento-card group flex flex-col items-center p-6 text-center">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-red-500/50 role-img-container shadow-lg">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZJd8xuKOvj3UHHc9BKLLBTffepagdwJE32LLfpSyZFw&s=10" alt="Mid Lane" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-white mb-1">MID LANE</h3>
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition-colors">Lihat Roster</span>
+                </button>
+
+                <button onclick="openModal('gold')" class="bento-card group flex flex-col items-center p-6 text-center">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-red-500/50 role-img-container shadow-lg">
+                        <img src="https://img.freepik.com/premium-vector/role-mobile-legends-bang-bang_890255-44.jpg?w=360" alt="Gold Lane" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-white mb-1">GOLD LANE</h3>
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition-colors">Lihat Roster</span>
+                </button>
+
+                <button onclick="openModal('exp')" class="bento-card group flex flex-col items-center p-6 text-center col-span-2 md:col-span-1 lg:col-span-1">
+                    <div class="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-5 border-2 border-white/10 group-hover:border-red-500/50 role-img-container shadow-lg">
+                        <img src="https://i.pinimg.com/736x/60/df/bd/60dfbd6189ad6d1c3368ea3ee29ae870.jpg" alt="EXP Lane" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-white mb-1">EXP LANE</h3>
+                    <span class="text-[10px] text-red-400 font-semibold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 group-hover:bg-red-600 group-hover:text-white transition-colors">Lihat Roster</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- GALLERY SECTION (MERGED) -->
+        <section id="gallery" class="w-full flex flex-col gap-8 scroll-mt-24 reveal pb-10">
+            <div class="flex items-center gap-4 flex-row-reverse">
+                <h2 class="font-display text-3xl font-bold text-white uppercase tracking-wider text-right">Galeri Momen</h2>
+                <div class="h-[1px] flex-1 bg-gradient-to-l from-red-600/50 to-transparent"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Galeri 1 -->
+                <div class="bento-card p-2 group gallery-card cursor-pointer">
+                    <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/5">
+                        <img src="https://i.pinimg.com/736x/5f/72/8d/5f728dad0e09b51e3d3ad951a7c0dd87.jpg" alt="GTR Moment 1" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                            <h3 class="text-white font-bold text-lg tracking-wide">GOM-GOM Action</h3>
+                            <p class="text-red-400 text-[10px] uppercase tracking-widest font-bold mt-1">Turnamen S31</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Galeri 2 -->
+                <div class="bento-card p-2 group gallery-card cursor-pointer">
+                    <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/5">
+                        <img src="https://i.pinimg.com/736x/5f/72/8d/5f728dad0e09b51e3d3ad951a7c0dd87.jpg" alt="GTR Moment 2" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                            <h3 class="text-white font-bold text-lg tracking-wide">Monang Savage</h3>
+                            <p class="text-red-400 text-[10px] uppercase tracking-widest font-bold mt-1">Gokil Lord Pit</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Galeri 3 -->
+                <div class="bento-card p-2 group gallery-card cursor-pointer">
+                    <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/5">
+                        <img src="https://i.pinimg.com/736x/5f/72/8d/5f728dad0e09b51e3d3ad951a7c0dd87.jpg" alt="GTR Moment 3" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                            <h3 class="text-white font-bold text-lg tracking-wide">Gibran Ganteng</h3>
+                            <p class="text-red-400 text-[10px] uppercase tracking-widest font-bold mt-1">Figur GTR</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Galeri 4 -->
+                <div class="bento-card p-2 group gallery-card cursor-pointer">
+                    <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-white/5">
+                        <img src="https://i.pinimg.com/736x/5f/72/8d/5f728dad0e09b51e3d3ad951a7c0dd87.jpg" alt="GTR Moment 4" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                            <h3 class="text-white font-bold text-lg tracking-wide">Momen LS</h3>
+                            <p class="text-red-400 text-[10px] uppercase tracking-widest font-bold mt-1">Lose Streak 15x</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Background and Content (Tetap Sama) -->
+    <div id="roleModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div id="modalOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="relative w-full max-w-md bg-gtr-surface border border-white/10 rounded-2xl overflow-hidden shadow-2xl modal-enter">
+            <div class="relative h-32 bg-zinc-900 overflow-hidden flex items-center justify-center border-b border-white/5">
+                <div class="absolute inset-0 opacity-20 bg-center bg-cover blur-sm" id="modalHeaderBg"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-gtr-surface to-transparent"></div>
+                <h2 id="modalTitle" class="relative z-10 font-display text-4xl font-black text-white tracking-widest uppercase text-shadow-lg">ROLE</h2>
+            </div>
+
+            <div class="p-6 relative">
+                <div class="absolute -top-12 left-6 w-20 h-20 rounded-xl overflow-hidden border-2 border-gtr-surface shadow-xl">
+                    <img id="modalIcon" src="" alt="Icon" class="w-full h-full object-cover bg-black">
+                </div>
+
+                <h4 class="text-xs text-red-500 uppercase tracking-widest font-bold mt-10 mb-4 flex items-center gap-2">
+                    <i data-lucide="users" class="w-4 h-4"></i> Roster Aktif
+                </h4>
+
+                <ul id="modalPlayerList" class="space-y-3"></ul>
+            </div>
+
+            <div class="p-4 bg-white/5 border-t border-white/5">
+                <button onclick="closeModal()" class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Toggle Button -->
+    <button id="ai-chat-btn" class="fixed bottom-8 right-8 z-40 bg-zinc-900 border border-red-600/30 text-white px-5 py-4 rounded-2xl shadow-[0_10px_40px_rgba(220,38,38,0.25)] hover:border-red-500 hover:-translate-y-1 transition-all flex items-center gap-3 group backdrop-blur-xl">
+        <div class="relative">
+            <i data-lucide="bot" class="w-6 h-6 text-red-500 group-hover:text-red-400"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+        </div>
+        <div class="flex flex-col items-start hidden md:flex">
+            <span class="text-[10px] text-gray-400 font-mono leading-none mb-1">GTR SYSTEM</span>
+            <span class="font-bold text-sm leading-none">Tanya GTR AI</span>
+        </div>
+    </button>
+
+    <!-- AI Chat Window (Responsif Bottom Sheet dengan dvh) -->
+    <div id="ai-chat-window" class="fixed bottom-0 left-0 w-full md:left-auto md:right-8 md:bottom-28 md:w-[400px] bg-gtr-surface/98 backdrop-blur-3xl border border-white/10 rounded-t-3xl md:rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-[150] flex-col h-[85dvh] md:h-[500px] overflow-hidden modal-enter hidden">
+        
+        <div class="w-full flex justify-center pt-3 pb-1 md:hidden">
+            <div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+        </div>
+
+        <div class="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-sm text-white">GTR AI Coach</span>
+                    <span class="text-[10px] text-green-400 font-mono flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button id="close-ai-chat" class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-messages" class="p-5 flex-1 overflow-y-auto space-y-4 flex flex-col bg-[#0a0a0a]/50">
+            <div class="flex gap-3 max-w-[85%]">
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex-shrink-0 flex items-center justify-center text-red-500 border border-red-500/20">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-3.5 rounded-2xl rounded-tl-none text-gray-300 text-sm leading-relaxed shadow-sm">
+                    Halo! 🎮 Sistem analis taktik GTR siap. Butuh saran <strong>draft pick</strong>, <strong>counter hero</strong>, atau <strong>build item</strong> untuk MLBB? Tanya aja!
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white/5 bg-white/5">
+            <form id="ai-form" class="relative flex items-center gap-2">
+                <input type="text" id="ai-input" class="flex-1 bg-[#0a0a0a] border border-white/10 rounded-xl pl-4 pr-4 py-3 text-sm text-white focus:outline-none focus:border-red-500/50 transition-colors placeholder-gray-500" placeholder="Tanya strategi MLBB..." autocomplete="off">
+                <button type="submit" class="p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-lg flex-shrink-0">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Efek Animasi Muncul Saat Scroll ---
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); // Jalankan sekali saat load
+
+        // --- Data Squad ---
+        const squadData = {
+            jungler: {
+                title: 'JUNGLER',
+                icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuEPtJw5YcMLSrp50RrghF_yXKrUo0ToN0VxzSMbaL1QEmzqeBv7ABhaDW&s=10',
+                players: ['Rakha', 'Kosong', 'Kosong']
+            },
+            roamer: {
+                title: 'ROAMER',
+                icon: 'https://img.freepik.com/premium-vector/role-mobile-legends-bang-bang_890255-47.jpg?w=360',
+                players: ['Josep', '<span class="text-red-400 italic">Kosong (Butuh Support)</span>']
+            },
+            mid: {
+                title: 'MID LANE',
+                icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZJd8xuKOvj3UHHc9BKLLBTffepagdwJE32LLfpSyZFw&s=10',
+                players: ['Cholly', 'Kosong']
+            },
+            gold: {
+                title: 'GOLD LANE',
+                icon: 'https://img.freepik.com/premium-vector/role-mobile-legends-bang-bang_890255-44.jpg?w=360',
+                players: ['Cholly <span class="text-xs text-gray-500">(Magang Final Bos🦍)</span>', 'Jek', 'Kosong']
+            },
+            exp: {
+                title: 'EXP LANE',
+                icon: 'https://i.pinimg.com/736x/60/df/bd/60dfbd6189ad6d1c3368ea3ee29ae870.jpg',
+                players: ['Tirta', 'Kosong']
+            }
+        };
+
+        const modal = document.getElementById('roleModal');
+
+        function openModal(roleKey) {
+            const data = squadData[roleKey];
+            document.getElementById('modalIcon').src = data.icon;
+            document.getElementById('modalHeaderBg').style.backgroundImage = `url('${data.icon}')`;
+            document.getElementById('modalTitle').textContent = data.title;
+
+            const listContainer = document.getElementById('modalPlayerList');
+            listContainer.innerHTML = '';
+
+            data.players.forEach(playerName => {
+                const li = document.createElement('li');
+                li.className = "flex items-center gap-4 p-3.5 bg-black/40 rounded-xl border border-white/5 hover:border-white/10 transition-colors";
+                li.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-gray-200 font-medium text-sm">${playerName}</span>
+                `;
+                listContainer.appendChild(li);
+            });
+
+            lucide.createIcons();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
+        // --- Logika Chatbot AI (TETAP SAMA SEPERTI SEBELUMNYA) ---
+        const aiChatBtn = document.getElementById('ai-chat-btn');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const closeAiChat = document.getElementById('close-ai-chat');
+        const aiForm = document.getElementById('ai-form');
+        const aiInput = document.getElementById('ai-input');
+        const aiMessages = document.getElementById('ai-messages');
+
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const GROQ_MODELS = {
+            primary: 'llama-3.3-70b-versatile',
+            fallback: 'llama-3.1-8b-instant'
+        };
+
+        let isAwaitingResponse = false;
+        let conversationHistory = [];
+        
+        // PENTING: Paste API Key Groq di sini
+        const groqApiKey = "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"; 
+
+        aiChatBtn.addEventListener('click', () => {
+            aiChatWindow.classList.toggle('hidden');
+            aiChatWindow.classList.toggle('flex');
+            if (!aiChatWindow.classList.contains('hidden')) aiInput.focus();
+        });
+
+        closeAiChat.addEventListener('click', () => {
+            aiChatWindow.classList.add('hidden');
+            aiChatWindow.classList.remove('flex');
+        });
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function renderMarkdown(text) {
+            let out = escapeHtml(text);
+            out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            out = out.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            out = out.replace(/\n/g, '<br>');
+            return out;
+        }
+
+        function appendUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = "flex gap-3 max-w-[85%] self-end flex-row-reverse";
+            div.innerHTML = `
+                <div class="bg-red-600 text-white p-3.5 rounded-2xl rounded-tr-none text-sm shadow-md">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+            aiMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function appendBotMessage(text) {
+            const div = document.createElement('div');
+            div.className = "flex gap-3 max-w-[85%]";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex-shrink-0 flex items-center justify-center text-red-500 border border-red-500/20 mt-1">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-3.5 rounded-2xl rounded-tl-none text-gray-300 text-sm leading-relaxed shadow-sm">
+                    ${renderMarkdown(text)}
+                </div>
+            `;
+            aiMessages.appendChild(div);
+            lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function showLoading() {
+            const div = document.createElement('div');
+            div.id = 'ai-loading';
+            div.className = "flex gap-3 max-w-[85%]";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-red-500/20 flex-shrink-0 flex items-center justify-center text-red-500 border border-red-500/20 mt-1">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-1">
+                    <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></div>
+                </div>
+            `;
+            aiMessages.appendChild(div);
+            lucide.createIcons();
+            scrollToBottom();
+        }
+
+        function removeLoading() {
+            const loading = document.getElementById('ai-loading');
+            if (loading) loading.remove();
+        }
+
+        function scrollToBottom() {
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        function buildSystemPrompt() {
+            return `Kamu adalah GTR AI Coach, asisten taktik profesional untuk squad esports GTR di game Mobile Legends: Bang Bang (MLBB).
+
+Gaya jawaban:
+- Bahasa casual, gaul, tapi tetap jelas
+- Singkat, padat, dan actionable
+- Fokus ke draft pick, counter hero, build item, macro, micro, dan teamfight.
+Kamu sangat diperbolehkan membahas di luar kontes game mlbb, tapi harus menanyakan dulu kepada user untuk pertama kali`;
+        }
+
+        function buildMessages(userMessage) {
+            const recentHistory = conversationHistory.slice(-10);
+            return [
+                { role: 'system', content: buildSystemPrompt() },
+                ...recentHistory,
+                { role: 'user', content: userMessage }
+            ];
+        }
+
+        async function callGroq(model, userMessage) {
+            const payload = {
+                model,
+                messages: buildMessages(userMessage),
+                temperature: 0.7,
+                max_tokens: 512,
+                top_p: 1,
+                stream: false
+            };
+
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${groqApiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let data = null;
+            try { data = await response.json(); } catch (_) { data = null; }
+            return { response, data };
+        }
+
+        function localFallbackReply(userMessage) {
+            return 'Mode fallback aktif. Tanya aja soal draft pick, counter hero, build item, atau strategi MLBB—gue kasih saran yang paling relevan. 🎮';
+        }
+
+        async function fetchGroqResponse(userMessage) {
+            if (!groqApiKey || groqApiKey === "MASUKKAN_API_KEY_GROQ_KAMU_DISINI") {
+                return '⚠️ API key belum diset. Silakan masukkan Groq API key kamu ke dalam baris kode HTML.';
+            }
+
+            const modelsToTry = [GROQ_MODELS.primary, GROQ_MODELS.fallback];
+            let lastErrorText = '';
+
+            for (let i = 0; i < modelsToTry.length; i++) {
+                const model = modelsToTry[i];
+                try {
+                    const { response, data } = await callGroq(model, userMessage);
+
+                    if (response.ok && data?.choices?.[0]?.message?.content) {
+                        const botMessage = data.choices[0].message.content.trim();
+                        conversationHistory.push({ role: 'user', content: userMessage });
+                        conversationHistory.push({ role: 'assistant', content: botMessage });
+                        if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
+                        return botMessage;
+                    }
+                    if (response.status === 401 || response.status === 403) return '❌ API key invalid atau tidak punya akses.';
+                    if (response.status === 429) return '⏱️ Server lagi rame. Coba beberapa saat lagi.';
+                    
+                    lastErrorText = data?.error?.message || `HTTP ${response.status}`;
+                } catch (error) {
+                    lastErrorText = error?.message || 'Network error';
+                }
+            }
+            return lastErrorText ? `❌ ${lastErrorText}` : localFallbackReply(userMessage);
+        }
+
+        aiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isAwaitingResponse) return;
+            const text = aiInput.value.trim();
+            if (!text) return;
+
+            isAwaitingResponse = true;
+            aiInput.disabled = true;
+
+            appendUserMessage(text);
+            aiInput.value = '';
+            showLoading();
+
+            const reply = await fetchGroqResponse(text);
+
+            removeLoading();
+            appendBotMessage(reply);
+
+            isAwaitingResponse = false;
+            aiInput.disabled = false;
+            aiInput.focus();
+        });
+    </script>
+    <footer class="w-full mt-20 border-t border-white/10 bg-black/40 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-500 text-center md:text-left">
+        <p>© 2026 GTR E-SPORTS | All rights reserved</p>
+        <p class="text-gray-600">Designed by @kelvin_drack (discord)</p>
+    </div>
+</footer>
+</body>
+</html>
